@@ -15,5 +15,5 @@ jobs:
         uses: sangonzalezplus/github-traffic-report@v1.3.0
         with:
           TOKEN: ${{ secrets.METRICS_TOKEN }}
-          REPOSITORY: ${{ github.repository }}
+          REPOSITORY: ThiHarper/GrappleGraph
           # This saves data to a branch named 'traffic' so it doesn't clutter your main code
