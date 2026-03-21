@@ -1,0 +1,19 @@
+name: GitHub Traffic Logger
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs every Sunday at midnight
+  workflow_dispatch: # Allows you to run it manually whenever you want
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Record Traffic
+        uses: sangonzalezplus/github-traffic-report@v1.3.0
+        with:
+          TOKEN: ${{ secrets.METRICS_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          # This saves data to a branch named 'traffic' so it doesn't clutter your main code
