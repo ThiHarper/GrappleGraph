@@ -8,12 +8,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Record Traffic
-        uses: sangonzalezplus/github-traffic-report@v1.3.0
+      - name: GitHub Traffic Statistics
+        uses: sangonzalezplus/github-traffic-report@master # Use the master version for better stability
         with:
-          TOKEN: ${{ secrets.METRICS_TOKEN }}
+          TOKEN: ${{ secrets.GG_METRICS_TOKEN }}
           REPOSITORY: ThiHarper/GrappleGraph
           # This saves data to a branch named 'traffic' so it doesn't clutter your main code
