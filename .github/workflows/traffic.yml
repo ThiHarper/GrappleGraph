@@ -5,15 +5,15 @@ on:
   workflow_dispatch: # Allows you to run it manually whenever you want
 
 jobs:
-  build:
+  stats:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: GitHub Traffic Statistics
-        uses: sangonzalezplus/github-traffic-report@master # Use the master version for better stability
+      
+      - name: Generate GG Traffic Stats
+        uses: jgehrcke/github-repo-stats@v1.4.2
         with:
-          TOKEN: ${{ secrets.GG_METRICS_TOKEN }}
-          REPOSITORY: ThiHarper/GrappleGraph
+          repository: ThiHarper/GrappleGraph
+          ghtoken: ${{ secrets.GG_METRICS_TOKEN }}
           # This saves data to a branch named 'traffic' so it doesn't clutter your main code
