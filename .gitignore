@@ -1,30 +1,35 @@
-#env
+# --- Base44 & Development Essentials ---
+node_modules/
+dist/
+dist-ssr/
+*.local
 .env
 .env.*
+!.env.example
 
-# Logs
+# --- Logs & Diagnostics ---
 /logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# --- Editor & System Files ---
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
+Thumbs.db
 *.sw?
 
-.env
+# --- GrappleGraph Specifics ---
+# Uncomment the line below if you want to keep your 
+# data library local and NOT upload it to GitHub.
+# grapplegraph-library.json
+
+# --- Build & Cache ---
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+.eslintcache
