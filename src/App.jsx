@@ -49,7 +49,7 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
+        <Router basename="/GrappleGraph">
           <AuthenticatedApp />
         </Router>
         <Toaster />
