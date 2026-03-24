@@ -82,18 +82,18 @@
 
 /* React Flow overrides */
 .react-flow__background {
-  background-color: hsl(216, 9%, 11%) !important;
+  background-color: #121212 !important;
 }
 .react-flow__edge-path {
-  stroke: hsl(187, 100%, 50%) !important;
+  stroke: #D4AF37 !important;
   stroke-width: 2px;
 }
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: hsl(187, 100%, 70%) !important;
+  stroke: #e8c84a !important;
 }
 .react-flow__handle {
-  background: hsl(187, 100%, 50%) !important;
-  border: 2px solid hsl(216, 9%, 11%) !important;
+  background: #D4AF37 !important;
+  border: 2px solid #121212 !important;
   width: 10px !important;
   height: 10px !important;
 }

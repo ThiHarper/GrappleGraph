@@ -16,7 +16,7 @@ export default function Splash() {
 	return (
 		<div
 			className="fixed inset-0 flex flex-col items-center justify-center"
-			style={{ backgroundColor: '#1A1C1E' }}
+			style={{ backgroundColor: '#121212' }}
 		>
 			{/* Background grid */}
 			<div
@@ -36,7 +36,7 @@ export default function Splash() {
 				style={{
 					width: 400,
 					height: 400,
-					background: 'radial-gradient(circle, rgba(0,86,179,0.25) 0%, transparent 70%)',
+					background: 'radial-gradient(circle, rgba(139,0,0,0.25) 0%, transparent 70%)',
 				}}
 				initial={{ scale: 0.8, opacity: 0 }}
 				animate={{ scale: 1.2, opacity: 1 }}
@@ -57,11 +57,11 @@ export default function Splash() {
 					transition={{ duration: 0.6, delay: 0.2 }}
 				>
 					<svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-						<circle cx="14" cy="26" r="10" fill="#0056B3" stroke="#00E5FF" strokeWidth="2" />
-						<circle cx="38" cy="14" r="8" fill="#0056B3" stroke="#00E5FF" strokeWidth="2" />
-						<circle cx="38" cy="38" r="8" fill="#0056B3" stroke="#00E5FF" strokeWidth="2" />
-						<line x1="22" y1="22" x2="31" y2="17" stroke="#00E5FF" strokeWidth="2" />
-						<line x1="22" y1="30" x2="31" y2="35" stroke="#00E5FF" strokeWidth="2" />
+						<circle cx="14" cy="26" r="10" fill="#8B0000" stroke="#D4AF37" strokeWidth="2" />
+						<circle cx="38" cy="14" r="8" fill="#8B0000" stroke="#D4AF37" strokeWidth="2" />
+						<circle cx="38" cy="38" r="8" fill="#8B0000" stroke="#D4AF37" strokeWidth="2" />
+						<line x1="22" y1="22" x2="31" y2="17" stroke="#D4AF37" strokeWidth="2" />
+						<line x1="22" y1="30" x2="31" y2="35" stroke="#D4AF37" strokeWidth="2" />
 					</svg>
 				</motion.div>
 
@@ -74,7 +74,7 @@ export default function Splash() {
 						letterSpacing: '-0.02em',
 					}}
 				>
-					Grapple<span style={{ color: '#00E5FF' }}>Graph</span>
+					Grapple<span style={{ color: '#D4AF37' }}>Graph</span>
 				</h1>
 
 				{/* Tagline */}
@@ -98,7 +98,7 @@ export default function Splash() {
 				>
 					<motion.div
 						className="h-full rounded-full"
-						style={{ backgroundColor: '#00E5FF' }}
+						style={{ backgroundColor: '#D4AF37' }}
 						initial={{ width: '0%' }}
 						animate={{ width: '100%' }}
 						transition={{ delay: 0.8, duration: 1.8, ease: 'easeInOut' }}

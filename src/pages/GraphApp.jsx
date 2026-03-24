@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
 	ReactFlow,
 	Background,
@@ -19,21 +19,18 @@ import GraphNode from '../components/graph/GraphNode';
 
 const oNodeTypes = { graphNode: GraphNode };
 
-const aInitialNodes = [
-	{
-		id: 'node-1',
-		type: 'graphNode',
-		position: { x: 300, y: 200 },
-		data: {
-			sLabel: 'Alignment',
-			sNotes: 'The foundation of all BJJ movement. Proper spine alignment controls posture, base, and leverage.',
-			sYoutubeURL: '',
-			sTimestamp: '',
-		},
+const oDefaultNode = {
+	id: 'node-1',
+	type: 'graphNode',
+	position: { x: 300, y: 200 },
+	data: {
+		sLabel: 'Alignment',
+		sNotes: 'The foundation of all BJJ movement. Proper spine alignment controls posture, base, and leverage.',
+		sYoutubeURL: '',
+		sTimestamp: '',
+		sCategory: 'Concept',
 	},
-];
-
-const aInitialEdges = [];
+};
 
 let iNodeCounter = 2;
 
@@ -43,27 +40,74 @@ function GenerateNodeID() {
 	return sID;
 }
 
-export default function GraphApp() {
-	const [aNodes, setNodes, onNodesChange] = useNodesState(aInitialNodes);
-	const [aEdges, setEdges, onEdgesChange] = useEdgesState(aInitialEdges);
+function SaveToLocalStorage(aNodes, aEdges) {
+	const oGraphData = { nodes: aNodes, edges: aEdges };
+	localStorage.setItem('oGraphData', JSON.stringify(oGraphData));
+}
 
+export default function GraphApp() {
+	const [aNodes, setNodes, onNodesChange] = useNodesState([]);
+	const [aEdges, setEdges, onEdgesChange] = useEdgesState([]);
 	const [oSelectedNode, setOSelectedNode] = useState(null);
 	const [bShowNodeForm, setBShowNodeForm] = useState(false);
 	const [oEditingNode, setOEditingNode] = useState(null);
 	const [bShowEdgeForm, setBShowEdgeForm] = useState(false);
 	const [bSidebarOpen, setBSidebarOpen] = useState(true);
+	const [oSelectedEdge, setOSelectedEdge] = useState(null);
+	const [oEdgeClickPos, setOEdgeClickPos] = useState({ x: 0, y: 0 });
+
+	// Auto-Load on mount
+	useEffect(() => {
+		const sSaved = localStorage.getItem('oGraphData');
+		if (sSaved) {
+			const oParsed = JSON.parse(sSaved);
+			const aLoadedNodes = (oParsed.nodes || []).map((oN) => ({
+				...oN,
+				data: { ...oN.data, sCategory: oN.data.sCategory || 'Concept' },
+			}));
+			setNodes(aLoadedNodes);
+			setEdges(oParsed.edges || []);
+		} else {
+			setNodes([oDefaultNode]);
+			setEdges([]);
+		}
+	}, []);
 
 	const onConnect = useCallback(
-		(oParams) => setEdges((aE) => addEdge({ ...oParams, animated: false }, aE)),
-		[setEdges]
+		(oParams) => {
+			setEdges((aE) => {
+				const aNew = addEdge({ ...oParams, animated: false }, aE);
+				SaveToLocalStorage(aNodes, aNew);
+				return aNew;
+			});
+		},
+		[setEdges, aNodes]
 	);
 
 	function HandleNodeClick(oEvent, oNode) {
+		setOSelectedEdge(null);
 		setOSelectedNode(oNode);
+	}
+
+	function HandleEdgeClick(oEvent, oEdge) {
+		setOSelectedNode(null);
+		setOSelectedEdge(oEdge);
+		setOEdgeClickPos({ x: oEvent.clientX, y: oEvent.clientY });
+	}
+
+	function HandleDeleteSelectedEdge() {
+		const sEdgeID = oSelectedEdge.id;
+		setEdges((aE) => {
+			const aNew = aE.filter((oE) => oE.id !== sEdgeID);
+			SaveToLocalStorage(aNodes, aNew);
+			return aNew;
+		});
+		setOSelectedEdge(null);
 	}
 
 	function HandlePaneClick() {
 		setOSelectedNode(null);
+		setOSelectedEdge(null);
 	}
 
 	function HandleAddNode() {
@@ -77,20 +121,27 @@ export default function GraphApp() {
 	}
 
 	function HandleDeleteNode(sNodeID) {
-		setNodes((aN) => aN.filter((oN) => oN.id !== sNodeID));
-		setEdges((aE) => aE.filter((oE) => oE.source !== sNodeID && oE.target !== sNodeID));
+		setNodes((aN) => {
+			const aNew = aN.filter((oN) => oN.id !== sNodeID);
+			setEdges((aE) => {
+				const aNewEdges = aE.filter((oE) => oE.source !== sNodeID && oE.target !== sNodeID);
+				SaveToLocalStorage(aNew, aNewEdges);
+				return aNewEdges;
+			});
+			return aNew;
+		});
 		setOSelectedNode(null);
 	}
 
 	function HandleNodeFormSave(oData) {
 		if (oEditingNode) {
-			setNodes((aN) =>
-				aN.map((oN) =>
-					oN.id === oEditingNode.id
-						? { ...oN, data: { ...oN.data, ...oData } }
-						: oN
-				)
-			);
+			setNodes((aN) => {
+				const aNew = aN.map((oN) =>
+					oN.id === oEditingNode.id ? { ...oN, data: { ...oN.data, ...oData } } : oN
+				);
+				SaveToLocalStorage(aNew, aEdges);
+				return aNew;
+			});
 			setOSelectedNode((oPrev) =>
 				oPrev && oPrev.id === oEditingNode.id
 					? { ...oPrev, data: { ...oPrev.data, ...oData } }
@@ -104,7 +155,11 @@ export default function GraphApp() {
 				position: { x: 150 + Math.random() * 300, y: 150 + Math.random() * 200 },
 				data: oData,
 			};
-			setNodes((aN) => [...aN, oNewNode]);
+			setNodes((aN) => {
+				const aNew = [...aN, oNewNode];
+				SaveToLocalStorage(aNew, aEdges);
+				return aNew;
+			});
 		}
 		setBShowNodeForm(false);
 		setOEditingNode(null);
@@ -112,13 +167,12 @@ export default function GraphApp() {
 
 	function HandleEdgeSave({ sSourceID, sTargetID }) {
 		const sEdgeID = `edge-${sSourceID}-${sTargetID}-${Date.now()}`;
-		const oNewEdge = {
-			id: sEdgeID,
-			source: sSourceID,
-			target: sTargetID,
-			animated: false,
-		};
-		setEdges((aE) => [...aE, oNewEdge]);
+		const oNewEdge = { id: sEdgeID, source: sSourceID, target: sTargetID, animated: false };
+		setEdges((aE) => {
+			const aNew = [...aE, oNewEdge];
+			SaveToLocalStorage(aNodes, aNew);
+			return aNew;
+		});
 		setBShowEdgeForm(false);
 	}
 
@@ -136,14 +190,21 @@ export default function GraphApp() {
 
 	function ImportGraphData(oData) {
 		if (oData.nodes && oData.edges) {
-			setNodes(oData.nodes);
+			const aImported = oData.nodes.map((oN) => ({
+				...oN,
+				data: { ...oN.data, sCategory: oN.data.sCategory || 'Concept' },
+			}));
+			setNodes(aImported);
 			setEdges(oData.edges);
 			setOSelectedNode(null);
+			setOSelectedEdge(null);
+			SaveToLocalStorage(aImported, oData.edges);
 		}
 	}
 
 	function HandleLibrarySelect(oNode) {
 		setOSelectedNode(oNode);
+		setOSelectedEdge(null);
 	}
 
 	const iDrawerWidth = oSelectedNode ? 380 : 0;
@@ -152,7 +213,7 @@ export default function GraphApp() {
 	return (
 		<div
 			className="flex flex-col h-screen w-screen overflow-hidden font-inter"
-			style={{ backgroundColor: '#1A1C1E' }}
+			style={{ backgroundColor: '#121212' }}
 		>
 			<Toolbar
 				onAddNode={HandleAddNode}
@@ -161,47 +222,49 @@ export default function GraphApp() {
 			/>
 
 			<div className="flex flex-1 overflow-hidden relative">
-				{/* Sidebar - Node Library */}
+				{/* Sidebar */}
 				<div
 					className="flex-shrink-0 overflow-hidden transition-all duration-300"
 					style={{
 						width: iSidebarWidth,
-						borderRight: bSidebarOpen ? '1px solid #2E3540' : 'none',
+						borderRight: bSidebarOpen ? '1px solid #2A2A2A' : 'none',
 					}}
 				>
 					{bSidebarOpen && (
-						<div className="h-full">
+						<div className="h-full flex flex-col" style={{ backgroundColor: '#1A1A1A' }}>
 							<div
-								className="flex items-center justify-between px-4 py-3"
-								style={{ borderBottom: '1px solid #2E3540' }}
+								className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+								style={{ borderBottom: '1px solid #2A2A2A' }}
 							>
-								<span className="text-xs uppercase tracking-widest font-medium" style={{ color: '#556677' }}>
-									Library
+								<span className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#D4AF37' }}>
+									** NODES
 								</span>
 								<button
 									onClick={() => setBShowEdgeForm(true)}
 									className="text-xs px-2.5 py-1 rounded-lg transition-colors"
 									style={{
-										backgroundColor: 'rgba(0,86,179,0.15)',
-										color: '#7AADFF',
-										border: '1px solid rgba(0,86,179,0.3)',
+										backgroundColor: 'rgba(139,0,0,0.2)',
+										color: '#D4AF37',
+										border: '1px solid rgba(139,0,0,0.4)',
 									}}
-									onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0,86,179,0.25)'}
-									onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0,86,179,0.15)'}
+									onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(139,0,0,0.35)'}
+									onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(139,0,0,0.2)'}
 								>
 									+ Link
 								</button>
 							</div>
-							<NodeLibrary
-								aNodes={aNodes}
-								onSelectNode={HandleLibrarySelect}
-								sSelectedID={oSelectedNode ? oSelectedNode.id : ''}
-							/>
+							<div className="flex-1 overflow-hidden">
+								<NodeLibrary
+									aNodes={aNodes}
+									onSelectNode={HandleLibrarySelect}
+									sSelectedID={oSelectedNode ? oSelectedNode.id : ''}
+								/>
+							</div>
 						</div>
 					)}
 				</div>
 
-				{/* Toggle sidebar button */}
+				{/* Toggle sidebar */}
 				<button
 					onClick={() => setBSidebarOpen((b) => !b)}
 					className="absolute z-20 flex items-center justify-center rounded-r-lg transition-all"
@@ -211,20 +274,17 @@ export default function GraphApp() {
 						transform: 'translateY(-50%)',
 						width: 18,
 						height: 48,
-						backgroundColor: '#2A2E33',
-						border: '1px solid #2E3540',
+						backgroundColor: '#2A2A2A',
+						border: '1px solid #333',
 						borderLeft: 'none',
-						color: '#556677',
+						color: '#888',
 					}}
 				>
 					<span style={{ fontSize: 10 }}>{bSidebarOpen ? '‹' : '›'}</span>
 				</button>
 
 				{/* Graph Canvas */}
-				<div
-					className="flex-1 overflow-hidden"
-					style={{ marginRight: iDrawerWidth }}
-				>
+				<div className="flex-1 overflow-hidden" style={{ marginRight: iDrawerWidth }}>
 					<ReactFlow
 						nodes={aNodes}
 						edges={aEdges}
@@ -232,24 +292,25 @@ export default function GraphApp() {
 						onEdgesChange={onEdgesChange}
 						onConnect={onConnect}
 						onNodeClick={HandleNodeClick}
+						onEdgeClick={HandleEdgeClick}
 						onPaneClick={HandlePaneClick}
 						nodeTypes={oNodeTypes}
 						fitView
-						style={{ backgroundColor: '#1A1C1E' }}
+						style={{ backgroundColor: '#121212' }}
 						defaultEdgeOptions={{
-							style: { stroke: '#00E5FF', strokeWidth: 2 },
+							style: { stroke: '#D4AF37', strokeWidth: 2 },
 						}}
 					>
 						<Background
 							variant={BackgroundVariant.Dots}
 							gap={28}
 							size={1}
-							color="rgba(0,229,255,0.12)"
+							color="rgba(212,175,55,0.1)"
 						/>
 						<Controls />
 						<MiniMap
-							nodeColor={() => '#0056B3'}
-							maskColor="rgba(26,28,30,0.8)"
+							nodeColor={() => '#8B0000'}
+							maskColor="rgba(18,18,18,0.8)"
 						/>
 					</ReactFlow>
 				</div>
@@ -262,6 +323,26 @@ export default function GraphApp() {
 						onEdit={HandleEditNode}
 						onDelete={HandleDeleteNode}
 					/>
+				)}
+
+				{/* Edge Delete Button */}
+				{oSelectedEdge && (
+					<div
+						className="fixed z-50 flex flex-col items-center gap-1"
+						style={{ left: oEdgeClickPos.x, top: oEdgeClickPos.y, transform: 'translate(-50%, -120%)' }}
+					>
+						<button
+							onClick={HandleDeleteSelectedEdge}
+							className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-lg"
+							style={{
+								backgroundColor: '#1A1A1A',
+								border: '1px solid #D4AF37',
+								color: '#D4AF37',
+							}}
+						>
+							✕ Delete Link
+						</button>
+					</div>
 				)}
 			</div>
 
