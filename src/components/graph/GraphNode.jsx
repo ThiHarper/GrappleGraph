@@ -1,7 +1,15 @@
 import { Handle, Position } from '@xyflow/react';
 import { memo } from 'react';
 
+const oCategoryColors = {
+	'Concept': '#8B0000',
+	'Sub-Concept': '#B45309',
+	'Technique': '#404040',
+};
+
 function GraphNode({ data, selected }) {
+	const sBgColor = oCategoryColors[data.sCategory] || '#8B0000';
+	const sBgSelected = data.sCategory === 'Sub-Concept' ? '#c96010' : data.sCategory === 'Technique' ? '#555' : '#A50000';
 	return (
 		<div
 			className="relative flex items-center justify-center rounded-xl font-inter font-medium text-sm transition-all duration-200"
@@ -9,12 +17,12 @@ function GraphNode({ data, selected }) {
 				minWidth: 130,
 				maxWidth: 180,
 				padding: '10px 16px',
-				backgroundColor: selected ? '#A50000' : '#8B0000',
+				backgroundColor: selected ? sBgSelected : sBgColor,
 				color: '#F0F0F0',
 				border: selected ? '2px solid #D4AF37' : '2px solid rgba(212,175,55,0.35)',
 				boxShadow: selected
 					? '0 0 20px rgba(212,175,55,0.45), 0 4px 16px rgba(0,0,0,0.6)'
-					: '0 0 10px rgba(139,0,0,0.4), 0 4px 12px rgba(0,0,0,0.5)',
+					: '0 4px 12px rgba(0,0,0,0.5)',
 				cursor: 'pointer',
 				textAlign: 'center',
 				lineHeight: 1.3,

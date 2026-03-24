@@ -20,24 +20,21 @@ import GraphNode from '../components/graph/GraphNode';
 const oNodeTypes = { graphNode: GraphNode };
 
 const oDefaultNode = {
-	id: 'node-1',
+	id: `node-${crypto.randomUUID()}`,
 	type: 'graphNode',
 	position: { x: 300, y: 200 },
 	data: {
 		sLabel: 'Alignment',
-		sNotes: 'The foundation of all BJJ movement. Proper spine alignment controls posture, base, and leverage.',
+		sNotes: 'Alignment is the framework of mechanical efficiency. It is the ability to maximize force generation and absorption through three components: Posture (spinal integrity), Structure (limb positioning), and Base (contact/stability). The key is to maintain your own alignment while systematically breaking your opponent\'s.',
 		sYoutubeURL: '',
 		sTimestamp: '',
 		sCategory: 'Concept',
+		sReference: 'Rob Biernacki',
 	},
 };
 
-let iNodeCounter = 2;
-
 function GenerateNodeID() {
-	const sID = `node-${iNodeCounter}`;
-	iNodeCounter++;
-	return sID;
+	return `node-${crypto.randomUUID()}`;
 }
 
 function SaveToLocalStorage(aNodes, aEdges) {
@@ -166,7 +163,7 @@ export default function GraphApp() {
 	}
 
 	function HandleEdgeSave({ sSourceID, sTargetID }) {
-		const sEdgeID = `edge-${sSourceID}-${sTargetID}-${Date.now()}`;
+		const sEdgeID = `edge-${crypto.randomUUID()}`;
 		const oNewEdge = { id: sEdgeID, source: sSourceID, target: sTargetID, animated: false };
 		setEdges((aE) => {
 			const aNew = [...aE, oNewEdge];
@@ -237,7 +234,7 @@ export default function GraphApp() {
 								style={{ borderBottom: '1px solid #2A2A2A' }}
 							>
 								<span className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#D4AF37' }}>
-									** NODES
+									{aNodes.length} NODES
 								</span>
 								<button
 									onClick={() => setBShowEdgeForm(true)}

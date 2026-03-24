@@ -21,6 +21,7 @@ export default function NodeForm({ oNode, onSave, onClose }) {
 	const [sNotes, setSNotes] = useState('');
 	const [sYoutubeURL, setSYoutubeURL] = useState('');
 	const [sTimestamp, setSTimestamp] = useState('');
+	const [sReference, setSReference] = useState('');
 
 	useEffect(() => {
 		if (oNode) {
@@ -29,12 +30,14 @@ export default function NodeForm({ oNode, onSave, onClose }) {
 			setSNotes(oNode.data.sNotes || '');
 			setSYoutubeURL(oNode.data.sYoutubeURL || '');
 			setSTimestamp(oNode.data.sTimestamp || '');
+			setSReference(oNode.data.sReference || '');
 		} else {
 			setSLabel('');
 			setSCategory('Concept');
 			setSNotes('');
-			setSYoutubeURL('');
+				setSYoutubeURL('');
 			setSTimestamp('');
+			setSReference('');
 		}
 	}, [oNode]);
 
@@ -47,6 +50,7 @@ export default function NodeForm({ oNode, onSave, onClose }) {
 			sNotes: sNotes.trim(),
 			sYoutubeURL: sYoutubeURL.trim(),
 			sTimestamp: sTimestamp.trim(),
+			sReference: sReference.trim(),
 		});
 	}
 
@@ -164,6 +168,22 @@ export default function NodeForm({ oNode, onSave, onClose }) {
 							value={sTimestamp}
 							onChange={(e) => setSTimestamp(e.target.value)}
 							placeholder="120 or 2:00"
+							style={sInputStyle}
+							onFocus={HandleFocus}
+							onBlur={HandleBlur}
+						/>
+					</div>
+
+					{/* Reference */}
+					<div className="flex flex-col gap-1.5">
+						<label className="text-xs font-medium uppercase tracking-wider" style={{ color: '#888' }}>
+							Reference / Source
+						</label>
+						<input
+							type="text"
+							value={sReference}
+							onChange={(e) => setSReference(e.target.value)}
+							placeholder="e.g. Rob Biernacki"
 							style={sInputStyle}
 							onFocus={HandleFocus}
 							onBlur={HandleBlur}

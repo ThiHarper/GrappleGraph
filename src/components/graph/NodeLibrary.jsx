@@ -31,22 +31,25 @@ export default function NodeLibrary({ aNodes, onSelectNode, sSelectedID }) {
 			{/* Search */}
 			<div className="px-3 pt-3 pb-2">
 				<div
-					className="flex items-center gap-2 rounded-lg px-3 py-2"
-					style={{ backgroundColor: '#111', border: '1px solid #333' }}
-				>
-					<Search size={13} style={{ color: '#555', flexShrink: 0 }} />
-					<input
-						type="text"
-						value={sSearch}
-						onChange={(e) => setSSearch(e.target.value)}
-						placeholder="Search..."
-						className="flex-1 bg-transparent outline-none text-sm"
-						style={{ color: '#F0F0F0', minHeight: '28px' }}
-					/>
-				</div>
-			</div>
+								className="flex items-center gap-2 rounded-lg px-3 py-2"
+								style={{ backgroundColor: '#111', border: '1px solid #333' }}
+							>
+								<Search size={13} style={{ color: '#555', flexShrink: 0 }} />
+								<input
+									type="text"
+									value={sSearch}
+									onChange={(e) => setSSearch(e.target.value)}
+									placeholder="Search..."
+									className="flex-1 bg-transparent outline-none text-sm"
+									style={{ color: '#F0F0F0', minHeight: '28px' }}
+								/>
+								{sSearch && (
+									<button onClick={() => setSSearch('')} style={{ color: '#D4AF37', lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>✕</button>
+								)}
+						</div>
+		</div>
 
-			{/* Groups */}
+		{/* Groups */}
 			<div className="flex-1 overflow-y-auto px-2 pb-4">
 				{aCategoryOrder.map((sCat) => {
 					const aGroup = oGrouped[sCat] || [];
